@@ -1,0 +1,24 @@
+{
+  "name": "hungarian-algorithm-api",
+  "version": "1.0.0",
+  "description": "Set of APIs for an Hungarian Algorithm article",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-api": "nodemon api/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuandawm/hungarian-algorithm-api.git"
+  },
+  "author": "NuandaWM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nuandawm/hungarian-algorithm-api/issues"
+  },
+  "homepage": "https://github.com/nuandawm/hungarian-algorithm-api#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  }
+}

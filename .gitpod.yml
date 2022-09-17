@@ -1,7 +1,13 @@
 # List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
 tasks:
-  - init: npm install
+  - name: Develop
+    init: >
+      npm install &&
+      gp sync-done npminstall
     command: npm run start-api
+  - name: Unit Tests
+    init: gp sync-await npminstall
+    command: npm run test
 
 # List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
 ports:

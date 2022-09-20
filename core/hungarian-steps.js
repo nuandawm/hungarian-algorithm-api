@@ -32,13 +32,48 @@ const colReduction = matrix => {
     return transpose(reduced)
 }
 
-const hasZeroPercolation = matrix => {
-    return true
+// Find the locations of the zeros for each row
+const findZeroLocations = matrix => matrix
+        .map(row => row
+        .map((value, index) => ({value, index}))
+        .filter(({value, _}) => value === 0)
+        .map(({_, index}) => index))
+
+// Recursively find all the zero-percolations based on zero locations
+const recursiveZeroPercolationFinder = (zeroLocations, path) => {
+    // TODO add control variable (percolations max quantity)
+    const [firstElements, ...rest] = zeroLocations
+    if (rest.length > 0) {
+        return firstElements
+            .flatMap(element => recursiveZeroPercolationFinder(rest, path.concat([element])))
+    } else {
+        return firstElements.map(element => path.concat([element]))
+    }
+}
+
+// Find all the zero-percolations
+const findZeroPercolations = matrix => {
+    const zeroLocations = findZeroLocations(matrix)
+    return recursiveZeroPercolationFinder(zeroLocations, [])
+}
+
+// Filter out non-complete percolations
+const filterCompletePercolations = (percolations, rowsQuantity) => percolations
+    .map(percolation => [...new Set(percolation)])
+    .filter(uniqPercolation => uniqPercolation.length === rowsQuantity)
+
+const hasCompleteZeroPercolations = matrix => {
+    const completeZeroPercolations = filterCompletePercolations(
+        findZeroPercolations(matrix),
+        matrix.length
+    )
+    return completeZeroPercolations.length > 0
 }
 
 module.exports = {
     rowReduction,
     colReduction,
     transpose,
-    hasZeroPercolation
+    hasCompleteZeroPercolations,
+    findZeroPercolations
 }

@@ -1,5 +1,5 @@
 const { test, describe, expect } = require('@jest/globals')
-const { rowReduction, colReduction, hasZeroPercolation } = require('./hungarian-steps.js')
+const { rowReduction, colReduction, hasCompleteZeroPercolations } = require('./hungarian-steps.js')
 
 const matrixArrayError = 'the matrix have to be an array'
 
@@ -97,32 +97,32 @@ describe('col reduction', () => {
 
 describe('percolation finder', () => {
     test('should return false when the matrix has only non-zero elements', () => {
-        expect(hasZeroPercolation([[1,2,3], [4,5,6], [7,8,9]])).toBeFalsy()
-        expect(hasZeroPercolation([[42,42,42,42], [42,42,42,42], [42,42,42,42]])).toBeFalsy()
-        expect(hasZeroPercolation([[42,42,42], [42,42,42], [42,42,42], [42,42,42]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[1,2,3], [4,5,6], [7,8,9]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[42,42,42,42], [42,42,42,42], [42,42,42,42]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[42,42,42], [42,42,42], [42,42,42], [42,42,42]])).toBeFalsy()
     })
 
     test('should return false when the number of non-zero elements is lesser than the number of rows', () => {
-        expect(hasZeroPercolation([[0,42,42], [42,0,42], [42,42,42]])).toBeFalsy()
-        expect(hasZeroPercolation([[0,0,42], [42,42,42], [42,42,42]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,42,42], [42,0,42], [42,42,42]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,0,42], [42,42,42], [42,42,42]])).toBeFalsy()
     })
 
     test('should return false when there is one zero element for each row but some have the same index', () => {
-        expect(hasZeroPercolation([[0,42,42], [0,42,42], [0,42,42]])).toBeFalsy()
-        expect(hasZeroPercolation([[0,42,42], [0,42,42], [42,42,0]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,42,42], [0,42,42], [0,42,42]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,42,42], [0,42,42], [42,42,0]])).toBeFalsy()
     })
 
     test('should return false when all the rows but one contain zeros', () => {
-        expect(hasZeroPercolation([[0,0,0], [42,42,42], [0,0,0]])).toBeFalsy()
-        expect(hasZeroPercolation([[0,0,0,0,0], [42,42,42,42,42], [0,0,0,0,0]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,0,0], [42,42,42], [0,0,0]])).toBeFalsy()
+        expect(hasCompleteZeroPercolations([[0,0,0,0,0], [42,42,42,42,42], [0,0,0,0,0]])).toBeFalsy()
     })
 
     test('should return true when there is one zero for each column and none have the same index', () => {
-        expect(hasZeroPercolation([[1,2,0], [0,4,5], [6,0,8]])).toBeTruthy()
-        expect(hasZeroPercolation([[0,42,42,42,42], [42,42,0,42,42], [42,42,42,42,0]])).toBeTruthy()
+        expect(hasCompleteZeroPercolations([[1,2,0], [0,4,5], [6,0,8]])).toBeTruthy()
+        expect(hasCompleteZeroPercolations([[0,42,42,42,42], [42,42,0,42,42], [42,42,42,42,0]])).toBeTruthy()
     })
 
     test('should return true when all the elements are zeros', () => {
-        expect(hasZeroPercolation([[0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]])).toBeTruthy()
+        expect(hasCompleteZeroPercolations([[0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0]])).toBeTruthy()
     })
 })

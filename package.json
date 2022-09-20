@@ -4,8 +4,9 @@
   "description": "Set of APIs for an Hungarian Algorithm article",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "start-api": "nodemon api/index.js"
+    "test": "jest core",
+    "start-server": "node server/index.js",
+    "build-client": "cd spa && npm run build"
   },
   "repository": {
     "type": "git",

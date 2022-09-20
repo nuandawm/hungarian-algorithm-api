@@ -1,13 +1,10 @@
 const express = require('express')
-const app = express()
-const port = 3000
+const router = express.Router()
 
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
   res.json({
     data: 'Hello Worldddd'
   })
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+module.exports = router

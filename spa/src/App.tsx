@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { ReactNode, useMemo, useState } from 'react';
 import { Grid, Container, Stepper, Step, StepLabel } from '@mui/material';
 import styled from 'styled-components';
+
 import PlayerCharacterCreation from './features/player-character-creation/PlayerCharacterCreation';
-import CharacterRankingsChoice from './features/player-character-creation/CharacterRankingsChoice';
-import HungarianSelectionResults from './features/player-character-creation/HungarianSelectionResults';
+import CharacterRankingsChoice from './features/character-rankings-choice/CharacterRankingsChoice';
+import HungarianSelectionResults from './features/hungarian-selection-results/HungarianSelectionResults';
+import { Character, Player } from './features/player-character-creation/playerCharacterCreationSlice';
 
 enum StepType {
   PLAYER_CHARACTER_CREATION = 0,
@@ -12,14 +14,11 @@ enum StepType {
 }
 
 const PROCESS_STEPS = [{
-  label: 'Add players and characters',
-  ContainerComponent: PlayerCharacterCreation
+  label: 'Add players and characters'
 }, {
-  label: 'Choose character rankings for each player',
-  ContainerComponent: CharacterRankingsChoice
+  label: 'Choose character rankings for each player'
 }, {
-  label: 'Check auto selection results',
-  ContainerComponent: HungarianSelectionResults
+  label: 'Check auto selection results'
 }]
 
 const AppTitleWrapper = styled.h1`
@@ -29,9 +28,15 @@ const AppTitleWrapper = styled.h1`
 function App() {
   const steps = useMemo(() => PROCESS_STEPS.map(s => s.label), [])
 
-  const [activeStep, setActiveStep] = useState(StepType.PLAYER_CHARACTER_CREATION)
+  const [activeStep] = useState(StepType.PLAYER_CHARACTER_CREATION)
 
-  const StepContent = useMemo(() => PROCESS_STEPS[activeStep].ContainerComponent, [activeStep])
+  const getStepContent = useMemo(() =>
+    (contentComponents: ReactNode[]) => contentComponents[activeStep],
+    [activeStep])
+
+  const playerCharacterCreationProceedHandler = (data: {players: Player[], characters: Character[]}) => {
+    console.log('proceed', data)
+  }
 
   return (
     <Container maxWidth='md'>
@@ -49,7 +54,11 @@ function App() {
           </Stepper>
         </Grid>
         <Grid item xs={12}>
-          <StepContent/>
+          {getStepContent([
+            <PlayerCharacterCreation onProceed={playerCharacterCreationProceedHandler}/>,
+            <CharacterRankingsChoice/>,
+            <HungarianSelectionResults/>
+          ])}
         </Grid>
       </Grid>
     </Container>

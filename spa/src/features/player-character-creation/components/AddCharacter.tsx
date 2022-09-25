@@ -29,6 +29,8 @@ const AddCharacter = ({onAdd}: AddCharacterProps) => {
     setCurrentCharacter(EMPTY_CHARACTER)
   }
 
+  const canAdd = currentCharacter.name !== '' && currentCharacter.description !== ''
+
   return <>
     <h2>New character info</h2>
     <TextField
@@ -43,7 +45,8 @@ const AddCharacter = ({onAdd}: AddCharacterProps) => {
       onChange={descriptionHandler}
       value={currentCharacter.description}
     />
-    <Button variant="contained" onClick={addCharacterClickHandler}>add</Button>
+    <Button variant="contained" onClick={addCharacterClickHandler}
+            disabled={!canAdd}>add</Button>
   </>
 }
 

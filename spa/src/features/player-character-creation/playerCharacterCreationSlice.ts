@@ -15,7 +15,7 @@ export interface Player extends Entity {
   name: string;
 }
 
-interface PlayerCharacterCreationState {
+export interface PlayerCharacterCreationState {
   characters: Character[];
   players: Player[];
 }

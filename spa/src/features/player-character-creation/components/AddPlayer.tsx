@@ -25,6 +25,8 @@ const AddPlayer = ({onAdd}: AddPlayerProps) => {
     setCurrentPlayer(EMPTY_PLAYER)
   }
 
+  const canAdd: boolean = currentPlayer.name !== ''
+
   return <>
     <h2>New player info</h2>
     <TextField
@@ -33,7 +35,8 @@ const AddPlayer = ({onAdd}: AddPlayerProps) => {
       value={currentPlayer.name}
       onChange={nameHandler}
     />
-    <Button variant="contained" onClick={addPlayerClickHandler}>add</Button>
+    <Button variant="contained" onClick={addPlayerClickHandler}
+            disabled={!canAdd}>add</Button>
   </>
 }
 

@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import playerCharacterCreationReducer from '../features/player-character-creation/playerCharacterCreationSlice';
+import characterRankingsChoiceReducer from '../features/character-rankings-choice/characterRankingsChoiceSlice';
 
 export const store = configureStore({
   reducer: {
-    playerCharacterCreation: playerCharacterCreationReducer
+    playerCharacterCreation: playerCharacterCreationReducer,
+    characterRankingsChoice: characterRankingsChoiceReducer
   },
 });
 

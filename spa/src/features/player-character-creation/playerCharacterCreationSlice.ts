@@ -3,16 +3,16 @@ import { v4 as uuid } from 'uuid';
 
 interface Entity {
   id?: string;
+  name: string;
 }
 
 export interface Character extends Entity {
-  name: string;
   description: string;
   profileImage?: string;
 }
 
 export interface Player extends Entity {
-  name: string;
+
 }
 
 export interface PlayerCharacterCreationState {

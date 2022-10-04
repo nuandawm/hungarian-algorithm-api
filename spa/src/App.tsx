@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useState } from 'react';
+import React, { ReactNode, useCallback, useMemo, useState } from 'react';
 import { Grid, Container, Stepper, Step, StepLabel } from '@mui/material';
 import styled from 'styled-components';
 
@@ -6,6 +6,7 @@ import PlayerCharacterCreation from './features/player-character-creation/Player
 import CharacterRankingsChoice from './features/character-rankings-choice/CharacterRankingsChoice';
 import HungarianSelectionResults from './features/hungarian-selection-results/HungarianSelectionResults';
 import { Character, Player } from './features/player-character-creation/playerCharacterCreationSlice';
+import { setEntitiesToRank, EntitiesToRank } from './features/character-rankings-choice/characterRankingsChoiceSlice';
 
 enum StepType {
   PLAYER_CHARACTER_CREATION = 0,
@@ -28,14 +29,19 @@ const AppTitleWrapper = styled.h1`
 function App() {
   const steps = useMemo(() => PROCESS_STEPS.map(s => s.label), [])
 
-  const [activeStep] = useState(StepType.PLAYER_CHARACTER_CREATION)
+  const [activeStep, setActiveStep] = useState(StepType.PLAYER_CHARACTER_CREATION)
 
-  const getStepContent = useMemo(() =>
+  const getStepContent = useCallback(
     (contentComponents: ReactNode[]) => contentComponents[activeStep],
-    [activeStep])
+    [activeStep]
+  );
 
   const playerCharacterCreationProceedHandler = (data: {players: Player[], characters: Character[]}) => {
-    console.log('proceed', data)
+    setActiveStep(StepType.RANKINGS)
+    setEntitiesToRank({
+      players: data.players.map(({id, name}) => ({ id, name })),
+      characters: data.characters.map(({id, name}) => ({ id, name }))
+    } as EntitiesToRank)
   }
 
   return (

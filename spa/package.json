@@ -28,6 +28,7 @@
     "start": "PORT=3001 craco start",
     "build": "craco build",
     "test": "craco test",
+    "test-coverage": "craco test --coverage",
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",

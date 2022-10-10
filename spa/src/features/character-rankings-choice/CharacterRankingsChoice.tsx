@@ -1,10 +1,20 @@
 import React, { useCallback, useMemo } from 'react'
-import { Card, CardContent, Grid, Icon, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { Button, Grid } from '@mui/material';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { setRankings } from './characterRankingsChoiceSlice';
+import PlayerRankingsCard from './PlayerRankingsCard';
+import { Entity } from '../player-character-creation/playerCharacterCreationSlice';
+import styled from 'styled-components';
 
-const CharacterRankingsChoice = () => {
+const CharacterRankingsChoiceWrapper = styled.div`
+    padding-bottom: 50px;
+`
+
+type CharacterRankingsChoiceProps = {
+    onProceed: (players: Entity[], characters: Entity[], rankingsMatrix: number[][]) => void
+}
+
+const CharacterRankingsChoice = ({ onProceed }: CharacterRankingsChoiceProps) => {
     const players = useAppSelector(state => state.characterRankingsChoice.entitiesToRank.players)
     const characters = useAppSelector(state => state.characterRankingsChoice.entitiesToRank.characters)
     const rankings = useAppSelector(state => state.characterRankingsChoice.rankings)
@@ -16,66 +26,42 @@ const CharacterRankingsChoice = () => {
     const getRankingsByPlayerId = useCallback((playerId: string) => rankings[playerId], [rankings])
 
     const dispatch = useAppDispatch();
-    const moveItemInList = useCallback((result: DropResult) => {
-        if (result.destination !== undefined) {
-            const playerId = result.destination.droppableId.replace('drop-', '')
-            const from = result.source.index
-            const to = result.destination.index
-            const playerRankings = getRankingsByPlayerId(playerId)
-            const rankingToMove = playerRankings.at(from);
-            const filteredRankings = playerRankings.filter((_, index) => index !== from)
-            const characterIds = rankingToMove !== undefined ?[
-                ...filteredRankings.slice(0, to),
-                rankingToMove,
-                ...filteredRankings.slice(to)
-            ] : playerRankings
-            dispatch(setRankings({ playerId, characterIds }))
-        }
-    }, [getRankingsByPlayerId])
+    const setPlayerRankings = useCallback((playerId: string, sortedCharacterIds: string[]) => {
+        dispatch(setRankings({ playerId, characterIds: sortedCharacterIds }))
+    }, [dispatch])
 
-    return <div>
+    const proceedHandler = useCallback(() => {
+        const rankingMatrix = players
+          .map(player => {
+              const rankings = player.id ? getRankingsByPlayerId(player.id) : []
+              // convert ordered characters to ranking values for each character
+              const rankingValues = Object.fromEntries(
+                rankings.map((characterId, index) => [characterId, (index + 1) * 10])
+              )
+              return characters
+                .map(({ id }) => id ? rankingValues[id] : 0)
+          })
+        onProceed(players, characters, rankingMatrix)
+    }, [onProceed, players, characters, getRankingsByPlayerId])
+
+    return <CharacterRankingsChoiceWrapper>
         <h1>Rankings</h1>
         <Grid container spacing={2}>
             {players.map(player =>
               <Grid item xs={6} key={player.id}>
-                  <Card>
-                      <CardContent>
-                          {player.name}
-                          <DragDropContext onDragEnd={moveItemInList}>
-                              <Droppable droppableId={`drop-${player.id}`}>
-                                  {provided =>
-                                      <List ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                      >
-                                          {player.id && getRankingsByPlayerId(player.id)
-                                            .map(ranking => ({id: ranking, value: ranking}))
-                                            .map((ranking, index) => (
-                                            <Draggable key={ranking.id} draggableId={`drag-${ranking.id}`} index={index}>
-                                                {provided => (
-                                                  <ListItem
-                                                            {...provided.draggableProps}
-                                                            ref={provided.innerRef}>
-                                                      <ListItemIcon
-                                                        {...provided.dragHandleProps}>
-                                                          <Icon>drag_indicator</Icon>
-                                                      </ListItemIcon>
-                                                      <ListItemText>
-                                                          {characterNameMap[ranking.value]}
-                                                      </ListItemText>
-                                                  </ListItem>
-                                                )}
-                                            </Draggable>
-                                          ))}
-                                          {provided.placeholder}
-                                      </List>
-                                  }
-                              </Droppable>
-                          </DragDropContext>
-                      </CardContent>
-                  </Card>
+                  <PlayerRankingsCard player={player}
+                                      playerRankings={player.id ? getRankingsByPlayerId(player.id) : []}
+                                      setPlayerRankings={setPlayerRankings}
+                                      characterNameMap={characterNameMap} />
               </Grid>)}
         </Grid>
-    </div>
+        <Grid container item xs={12}>
+            <Button variant="contained" fullWidth={true}
+                    onClick={proceedHandler}>
+                Send data to elaborate the results
+            </Button>
+        </Grid>
+    </CharacterRankingsChoiceWrapper>
 }
 
 export default CharacterRankingsChoice

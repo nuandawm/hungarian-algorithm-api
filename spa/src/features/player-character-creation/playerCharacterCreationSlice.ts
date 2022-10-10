@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuid } from 'uuid';
 
-interface Entity {
+export interface Entity {
   id?: string;
   name: string;
 }

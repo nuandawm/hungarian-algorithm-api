@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import PlayerCharacterCreation from './features/player-character-creation/PlayerCharacterCreation';
 import CharacterRankingsChoice from './features/character-rankings-choice/CharacterRankingsChoice';
 import HungarianSelectionResults from './features/hungarian-selection-results/HungarianSelectionResults';
-import { Character, Player } from './features/player-character-creation/playerCharacterCreationSlice';
+import { Character, Entity, Player } from './features/player-character-creation/playerCharacterCreationSlice';
 import { setEntitiesToRank } from './features/character-rankings-choice/characterRankingsChoiceSlice';
 import { useAppDispatch } from './app/hooks';
 
@@ -47,6 +47,28 @@ function App() {
     [dispatch]
   )
 
+  const characterRankingsChoiceProceedHandler = useCallback((players: Entity[], characters: Entity[], rankingsMatrix: number[][]) => {
+    console.log('proceed to result elaboration',
+      players, characters, rankingsMatrix)
+  }, [])
+
+  useEffect(() => {
+    setTimeout(() => {
+      playerCharacterCreationProceedHandler({
+        players: [
+          { id: 'p1', name: 'player 1' },
+          { id: 'p2', name: 'player 2' },
+          { id: 'p3', name: 'player 3' }
+        ],
+        characters: [
+          { id: 'c1', name: 'character 1', description: '' },
+          { id: 'c2', name: 'character 2', description: '' },
+          { id: 'c3', name: 'character 3', description: '' }
+        ]
+      })
+    }, 2000)
+  }, [playerCharacterCreationProceedHandler]);
+
   return (
     <Container maxWidth='md'>
       <Grid container>
@@ -65,7 +87,7 @@ function App() {
         <Grid item xs={12}>
           {getStepContent([
             <PlayerCharacterCreation onProceed={playerCharacterCreationProceedHandler}/>,
-            <CharacterRankingsChoice/>,
+            <CharacterRankingsChoice onProceed={characterRankingsChoiceProceedHandler}/>,
             <HungarianSelectionResults/>
           ])}
         </Grid>

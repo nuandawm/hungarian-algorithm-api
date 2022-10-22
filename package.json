@@ -4,7 +4,8 @@
   "description": "Set of APIs for an Hungarian Algorithm article",
   "main": "index.js",
   "scripts": {
-    "test": "jest core",
+    "test-core": "jest core",
+    "test-core-watch": "jest --watch core",
     "start-server": "node server/index.js",
     "build-client": "cd spa && npm run build"
   },
@@ -23,6 +24,7 @@
     "nodemon": "^2.0.19"
   },
   "devDependencies": {
-    "jest": "^29.0.3"
+    "jest": "^29.0.3",
+    "@jest/globals": "^29.2.1"
   }
 }

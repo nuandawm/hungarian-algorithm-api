@@ -2,7 +2,8 @@ const { it, describe, expect } = require('@jest/globals')
 const {
     rowReduction, colReduction, hasCompleteZeroPercolations,
     findZeroLocations, findFirstCompleteZeroPercolation, findCompleteZeroPercolations,
-    elaboratePercolationsRedundancyIndexes, findMinRIPercolation, findCoveringSegments
+    elaboratePercolationsRedundancyIndexes, findMinRIPercolation, findCoveringSegments, shakeMatrix,
+    elaborateHungarianAlgorithm
 } = require('./hungarian-steps')
 
 const matrixArrayError = 'the matrix have to be an array'
@@ -232,6 +233,19 @@ describe('elaborate redundancy index', function () {
             .filter(result => result.redundancyIndex === 0).length
         ).toBe(0)
     });
+
+    it('should return a list of percolations with redundancy index equals to 1', function () {
+        // [
+        //     [ 0, 5, 56, 0 ],
+        //     [ 66, 51, 0, 64 ],
+        //     [ 20, 0, 41, 38 ],
+        //     [ 88, 0, 73, 53 ]
+        // ]
+        const riPercolations = elaboratePercolationsRedundancyIndexes([[0,2,1,1], [0,3,1,1]])
+
+        expect(riPercolations.length).toBe(2)
+        expect(riPercolations.map(riPercolation => riPercolation.redundancyIndex).every(ri => ri === 1.25)).toBeTruthy()
+    });
 });
 
 describe('find min redundancy index percolation', function () {
@@ -261,6 +275,7 @@ describe('find min redundancy index percolation', function () {
 });
 
 describe('find covering segments', function () {
+    // TODO
     it('should return four covering segments given the example matrix and its min redundancy percolation', function () {
         const matrix =[
             [0,42,42,42,42],
@@ -278,5 +293,59 @@ describe('find covering segments', function () {
           coveredRows.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
           + coveredCols.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
         ).toBe(4)
+    });
+
+    it('should find three covering segments given the example matrix and its min redundancy percolation', function () {
+        const matrix = [
+            [ 0, 5, 56, 0 ],
+            [ 66, 51, 0, 64 ],
+            [ 20, 0, 41, 38 ],
+            [ 88, 0, 73, 53 ]
+        ];
+
+        const { coveredRows, coveredCols } = findCoveringSegments(
+          matrix,
+          [3,2,1,1])
+
+        expect(
+          coveredRows.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
+          + coveredCols.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
+        ).toBe(3)
+    });
+});
+
+describe('shake matrix', function () {
+    it('should should shake the matrix', function () {
+        const matrix =[
+            [0,42,42,42,42],
+            [42,0,42,42,42],
+            [42,0,42,42,0],
+            [42,0,42,42,42],
+            [42,42,42,0,42]
+        ];
+
+        expect(shakeMatrix(
+          matrix,
+          [true, false, false, false, true],
+          [false, true, false, false, true])).toEqual([
+            [0,84,42,42,84],
+            [0,0,0,0,42],
+            [0,0,0,0,0],
+            [0,0,0,0,42],
+            [42,84,42,0,84]
+        ])
+    });
+});
+
+describe('hungarian algorithm', function () {
+    it('should return the best hungarian algorithm result', function () {
+        const matrix = [
+            [28, 25, 76, 20],
+            [77, 54,  3, 67],
+            [79, 51, 92, 89],
+            [97,  1, 74, 54],
+        ];
+
+        expect(elaborateHungarianAlgorithm(matrix)).toEqual([3,2,0,1])
     });
 });

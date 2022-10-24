@@ -202,6 +202,61 @@ const findCoveringSegments = (matrix, minRedundancePercolation) => {
     }
 }
 
+const shakeMatrix = (matrix, coveredRows, coveredCols) => {
+    const shakedMatrix = []
+
+    let minUncoveredValue = Infinity;
+    for (let i=0; i<coveredRows.length; i++) {
+        if (!coveredRows[i]) {
+            for (let j=0; j<coveredCols.length; j++) {
+                if (!coveredCols[j] && matrix[i][j] < minUncoveredValue) {
+                    minUncoveredValue = matrix[i][j]
+                }
+            }
+        }
+    }
+
+    for (let i=0; i<matrix.length; i++) {
+        shakedMatrix[i] = []
+        for (let j=0; j<matrix[i].length; j++) {
+            if (!coveredRows[i] && !coveredCols[j]) {
+                shakedMatrix[i][j] = matrix[i][j] - minUncoveredValue
+            } else if (coveredRows[i] && coveredCols[j]) {
+                shakedMatrix[i][j] = matrix[i][j] + minUncoveredValue
+            } else {
+                shakedMatrix[i][j] = matrix[i][j]
+            }
+        }
+    }
+
+    return shakedMatrix
+}
+
+const elaborateHungarianAlgorithm = matrix => {
+    let solution = null
+    // Step 1 - row reduction
+    matrix = rowReduction(matrix)
+    // Step 2 - col reduction
+    matrix = colReduction(matrix)
+    // Step 3 - cover zeroes with minimum lines
+    for (let i=0; i<4; i++) {
+        const zeroPercolations = findZeroPercolations(matrix)
+        const { percolation, redundancyIndex } = findMinRIPercolation(zeroPercolations)
+        let coveredRows;
+        let coveredCols;
+        if (redundancyIndex === 0) {
+            // Solution found
+            solution = percolation;
+        } else {
+            ({ coveredRows, coveredCols } = findCoveringSegments(matrix, percolation));
+            // Step 4 - create additional zeroes (shake)
+            matrix = shakeMatrix(matrix, coveredRows, coveredCols)
+        }
+    }
+
+    return solution
+}
+
 module.exports = {
     rowReduction,
     colReduction,
@@ -214,5 +269,7 @@ module.exports = {
     elaborateRedundancyIndex,
     elaboratePercolationsRedundancyIndexes,
     findMinRIPercolation,
-    findCoveringSegments
+    findCoveringSegments,
+    shakeMatrix,
+    elaborateHungarianAlgorithm
 }

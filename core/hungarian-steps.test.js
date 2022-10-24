@@ -1,8 +1,9 @@
 const { it, describe, expect } = require('@jest/globals')
 const {
     rowReduction, colReduction, hasCompleteZeroPercolations,
-    findZeroLocations, findFirstCompleteZeroPercolation, findCompleteZeroPercolations
-} = require('./hungarian-steps.js')
+    findZeroLocations, findFirstCompleteZeroPercolation, findCompleteZeroPercolations,
+    elaboratePercolationsRedundancyIndexes, findMinRIPercolation, findCoveringSegments
+} = require('./hungarian-steps')
 
 const matrixArrayError = 'the matrix have to be an array'
 
@@ -212,3 +213,70 @@ describe('find first complete zero percolation', () => {
         expect(findFirstCompleteZeroPercolation([[0,0,0], [0,0,0], [0,0,0]])).toEqual([0,1,2])
     })
 })
+
+describe('elaborate redundancy index', function () {
+    it('should return a list with one zero redundancy index given a complete zero percolation', function () {
+        expect(
+          elaboratePercolationsRedundancyIndexes([[0,1,2,3,4]])
+            .filter(result => result.redundancyIndex === 0).length
+        ).toBeGreaterThan(0)
+    });
+
+    it('should return a list with no zero redundancy indexes given a list of non-complete zero percolations', function () {
+        expect(
+          elaboratePercolationsRedundancyIndexes([
+            [0,1,1,3,4],
+            [0,0,0,0,0],
+            [0,1,4,4,4]
+          ])
+            .filter(result => result.redundancyIndex === 0).length
+        ).toBe(0)
+    });
+});
+
+describe('find min redundancy index percolation', function () {
+    it('should return the percolation with the minimum redundancy index', function () {
+        expect(
+          findMinRIPercolation([
+              [0,1,1,3,4],
+              [0,0,0,0,0],
+              [0,1,4,4,4]
+          ]).percolation
+        ).toEqual([0,1,1,3,4])
+    });
+
+    it('should return the zero redundancy index percolation given a list of percolations containing a complete one', () => {
+        expect(
+          findMinRIPercolation([
+              [0,1,2,3,4],
+              [0,1,1,3,4],
+              [0,0,0,0,0],
+              [0,1,4,4,4]
+          ])
+        ).toEqual({
+            percolation: [0,1,2,3,4],
+            redundancyIndex: 0
+        })
+    })
+});
+
+describe('find covering segments', function () {
+    it('should return four covering segments given the example matrix and its min redundancy percolation', function () {
+        const matrix =[
+            [0,42,42,42,42],
+            [42,0,42,42,42],
+            [42,0,42,42,0],
+            [42,0,42,42,42],
+            [42,42,42,0,42]
+        ];
+
+        const { coveredRows, coveredCols } = findCoveringSegments(
+          matrix,
+          [0,1,4,1,3])
+
+        expect(
+          coveredRows.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
+          + coveredCols.map(covered => covered ? 1 : 0).reduce((sum, num) => sum + num)
+        ).toBe(4)
+    });
+});

@@ -1,3 +1,4 @@
+const { range } = require("./tools");
 const validateMatrix = matrix => matrix === undefined || matrix === null || !Array.isArray(matrix)
 
 const transpose = matrix => {
@@ -58,6 +59,43 @@ const findZeroPercolations = matrix => {
     return recursiveZeroPercolationFinder(zeroLocations, [])
 }
 
+const elaborateRedundancyIndex = percolation => {
+    const percolationOccurrencies = percolation.reduce((occurrencies, pos) => {
+        if (occurrencies[pos] === undefined) {
+            occurrencies[pos] = 1
+        } else {
+            occurrencies[pos] += 1
+        }
+        return occurrencies
+    }, {})
+
+    const maxOccurrencies = Object.entries(percolationOccurrencies)
+      .reduce(
+        (max, [_, occurrencies]) => occurrencies > max ? occurrencies : max,
+        0
+      )
+
+    const nonPercolationColumns = percolation.length - [...new Set(percolation)].length;
+    return maxOccurrencies - 1 + nonPercolationColumns / percolation.length
+}
+
+// Elaborate redundancy index
+const elaboratePercolationsRedundancyIndexes = zeroPercolations => {
+    return zeroPercolations.map(percolation => ({
+        percolation,
+        redundancyIndex: elaborateRedundancyIndex(percolation)
+    }))
+}
+
+const findMinRIPercolation = zeroPercolations => {
+    return elaboratePercolationsRedundancyIndexes(zeroPercolations)
+      .reduce(
+        (minRIPercolation, currRIPercolation) => currRIPercolation.redundancyIndex > minRIPercolation.redundancyIndex
+          ? minRIPercolation
+          : currRIPercolation
+      )
+}
+
 // check if the percolation is a complete one (no duplicated indexes)
 const isPercolationComplete = percolation => {
     return [...new Set(percolation)].length === percolation.length
@@ -110,6 +148,60 @@ const hasCompleteZeroPercolations = matrix => {
     return completeZeroPercolations.length > 0
 }
 
+const findCoveringSegments = (matrix, minRedundancePercolation) => {
+    const markedRows = range(matrix.length).map(() => false);
+    const markedCols = range(matrix.length).map(() => false);
+
+    const zeroPositions = []
+    for (let i=0; i<markedRows.length; i++) {
+        for (let j=0; j<matrix[i].length; j++) {
+            if (matrix[i][j] === 0) {
+                if (!zeroPositions.includes(j)) {
+                    zeroPositions.push(j)
+                } else {
+                    markedRows[i] = true
+                }
+            }
+        }
+    }
+
+    let markFlag = true;
+    while(markFlag) {
+        markFlag = false;
+        // mark cols based on marked rows
+        for (let i=0; i<markedRows.length; i++) {
+            if (markedRows[i]) {
+                for (let j=0; j<markedCols.length; j++) {
+                    if (!markedCols[j] && matrix[i][j] === 0) {
+                        markedCols[j] = true;
+                        markFlag = true;
+                    }
+                }
+            }
+        }
+
+        // mark rows based on marked cols
+        for (let j=0; j<markedCols.length; j++) {
+            if (markedCols[j]) {
+                for (let i=0; i<markedRows.length; i++) {
+                    if (!markedRows[i] && minRedundancePercolation[i] === j) {
+                        markedRows[i] = true;
+                        markFlag = true;
+                    }
+                }
+            }
+        }
+    }
+
+    const coveredCols = markedCols;
+    const coveredRows = markedRows.map(elem => !elem);
+
+    return {
+        coveredCols,
+        coveredRows
+    }
+}
+
 module.exports = {
     rowReduction,
     colReduction,
@@ -118,5 +210,9 @@ module.exports = {
     hasCompleteZeroPercolations,
     findZeroPercolations,
     findZeroLocations,
-    findFirstCompleteZeroPercolation
+    findFirstCompleteZeroPercolation,
+    elaborateRedundancyIndex,
+    elaboratePercolationsRedundancyIndexes,
+    findMinRIPercolation,
+    findCoveringSegments
 }
